@@ -1,0 +1,28 @@
+# Resource-free repository (playbook R1): no copied game binaries are EVER
+# committed. The surviving builds live in a private sibling / the j2me home's
+# _resources/ and are materialized into git-ignored _originals/ by fetch.py.
+#
+# Match ignored paths BY NAME — no trailing-slash globs — so a stray symlink is
+# covered too (playbook R2 — the stalker _originals symlink hazard).
+
+# Immutable surviving distributions (materialized; never committed).
+_originals
+
+# Generated catalogs, fingerprints, decompiles, captures (regenerable).
+_reference
+_temp
+
+# Rust build output.
+/target
+
+# Node / web.
+node_modules
+web/_public
+web/_dist
+web/.astro
+
+# Python / editor / OS noise.
+__pycache__
+*.pyc
+.DS_Store
+*.swp

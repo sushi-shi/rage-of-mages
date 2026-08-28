@@ -1,0 +1,8 @@
+# Per-game configuration read by the shared originals tooling (verify / fetch /
+# gen_builds). Filled in by new-game.py when this template is stamped.
+slug = "rage-of-mages"
+title = "Rage of Mages"
+fork = "2d"                      # 2d (Graphics2D) or 3d (M3G); see the
+                                       # j2me home's docs/FORK_2D_3D.md
+resources_env = "RAGE_OF_MAGES_RESOURCES"    # env-var fallback for the PRIVATE resources
+                                       # location (never a real path in the repo)

@@ -1,0 +1,15 @@
+Rage of Mages — J2ME recovery, transliteration, and native Rust port.
+
+This repository contains only recovered-by-hand reconstruction (code, transcribed
+data, provenance ledgers) and our own additions. It is dedicated to the public
+domain under the Creative Commons CC0 1.0 Universal dedication.
+
+To the extent possible under law, the authors have waived all copyright and
+related or neighboring rights to the contents of this repository. See the full
+CC0 1.0 legalcode at: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+This repository is deliberately RESOURCE-FREE: it never contains literal copied
+binaries from the original game. The surviving distributions and other copied
+bytes live in a private resources location and are materialized into git-ignored
+paths by the fetch tool. Those original works remain the property of their
+respective rights holders and are NOT covered by this dedication.
