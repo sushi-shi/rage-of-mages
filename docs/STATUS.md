@@ -17,7 +17,15 @@ Living record of what is recovered and verified. Newest first.
 
 ## Difficulty tier & recommended first phases
 
-_Fill from GAMES.md._ Recommended next: **Phase 1** — classify (class/method
+**Tier 1 (smallest surface).** 2D, ~31–37 classes, vendor **Nival Interactive**.
+This is ONE game across four builds — the RU "Allods" release (128×160, 176×220,
+240×320) and the EN "Rage of Mages" repack — confirmed the same codebase by a
+bytecode/resource fingerprint (identical obfuscated class-name set + byte-identical
+`res/*.map` level packs; see the merge note in `builds.toml`). The axis is
+resolution × region/title. Custom packs: `.map` (level data, shared across builds),
+`.utf` (localization — the RU/EN difference), `.pak`, `.int`.
+
+Recommended next: **Phase 1** — classify (class/method
 fingerprints across the unique payloads, cross-build deltas, lineage/language
 reconciliation, pick baseline + naming reference) and format triage (a
 malformed-input-rejecting parser per custom format, tested on every blob).

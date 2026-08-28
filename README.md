@@ -1,5 +1,14 @@
 # Rage of Mages — J2ME recovery & native Rust port
 
+> **Rage of Mages** (Western title) and **Allods / Аллоды** (Russian title) are the
+> **same** Nival J2ME game — one codebase, packaged for different devices and
+> regions. This one project covers both: the surviving builds are `allods_128x160`
+> ("Allods by Etty", RU), `allods_176x220` (RU), `allods_240x320` (RU), and
+> `Rage-of-Mages_v11` ("by SCOURER", EN). Confirmed by a bytecode/resource
+> fingerprint (identical obfuscated class-name set + byte-identical `res/*.map`
+> level packs across the builds); see the merge note in
+> `java/reconstruction/builds.toml`.
+
 A game-preservation project: recover Rage of Mages from its surviving J2ME builds and
 reimplement it as a maintainable native Rust game for Linux and the browser,
 following the shared method in `../PLAYBOOK.md` (the j2me home).

@@ -10,13 +10,30 @@
 #
 # `just originals-verify` reconciles every materialized payload against the
 # sha256 + bytes table below; `--self-test` proves the gate can fail.
+#
+# SAME-GAME MERGE (confirmed by bytecode/resource fingerprint, playbook R10):
+# "Allods" (Russian title) and "Rage of Mages" (Western title) are ONE Nival
+# game — one codebase, packaged for different devices and regions. Evidence:
+#   - all four builds share MIDlet-Vendor "Nival Interactive" and launch the
+#     same class `Container/GameMIDlet`;
+#   - identical obfuscated class-NAME set across builds (a..r, aa..ad,
+#     Container/GameMIDlet) — 31/31 shared between allods_240x320 and RoM v11;
+#   - 17/31 shared resource packs are BYTE-IDENTICAL, including the level data
+#     res/1.map .. res/12.map — same game content;
+#   - class bytecode is recompiled per device (0/31 byte-identical), and the
+#     .utf localization tables differ (RU vs EN) — that is the device + region
+#     /title axis, not a different game.
+# Canonical slug = the international name `rage-of-mages`. Variants below carry
+# a `region` + `title_variant` axis alongside `resolution`.
 
 title = "Rage of Mages"
+title_ru = "Allods"    # Russian release title of the same game (Аллоды)
 slug = "rage-of-mages"
 fork = "2d"   # 2d = Graphics2D (gothic path); 3d = M3G (stalker path)
-baseline = ""          # TODO Phase 1: pick the quality baseline id
-naming_reference = ""  # TODO Phase 1: pick the semantic-naming id
+baseline = ""          # TODO Phase 1: pick the quality baseline id (a full-res build)
+naming_reference = ""  # TODO Phase 1: EN .utf ("Rage of Mages") justifies semantic names
 # unique jar payloads: 4; jads: 0; zip containers: 0; 3D payloads: 0
+# axis: resolution (128x160 / 176x220 / 240x320) x region/title (RU "Allods" / EN "Rage of Mages")
 
 [[payload]]
 id = "rage_of_mages_j2me_en_v11_01"
@@ -32,8 +49,11 @@ cldc = "CLDC-1.0"
 declared_language = "en"   # HINT from filename/manifest; verify from content (R10)
 official = true   # TODO Phase 1: set false + move to [[archived]] if a fan repack
 repack_tag = "by S"   # fan-repack signature detected — likely [[archived]]
+region = "en"                 # Western "Rage of Mages" release
+title_variant = "Rage of Mages"
 collected_as = ["Rage-of-Mages_J2ME_EN_v11.jar"]
 containers = ["_originals/Rage-of-Mages_J2ME_EN_v11.jar"]
+notes = "EN region variant (fan repack 'by SCOURER'); same Nival codebase as the Allods builds (see merge note). Naming-reference candidate: its .utf carries the English strings."
 
 [[payload]]
 id = "allods_128x160_128x160_02"
@@ -50,8 +70,11 @@ resolution = "128x160"
 declared_language = "unknown"   # HINT from filename/manifest; verify from content (R10)
 official = true   # TODO Phase 1: set false + move to [[archived]] if a fan repack
 repack_tag = "by E"   # fan-repack signature detected — likely [[archived]]
+region = "ru"                 # Russian "Allods" (Аллоды) release
+title_variant = "Allods"
 collected_as = ["allods_128x160.jar"]
 containers = ["_originals/allods_128x160.jar"]
+notes = "RU region variant (repack 'by Etty'), smallest resolution. Same Nival codebase as Rage of Mages (see merge note)."
 
 [[payload]]
 id = "allods_176x220_176x220_03"
@@ -67,8 +90,11 @@ cldc = "CLDC-1.0"
 resolution = "176x220"
 declared_language = "unknown"   # HINT from filename/manifest; verify from content (R10)
 official = true   # TODO Phase 1: set false + move to [[archived]] if a fan repack
+region = "ru"                 # Russian "Allods" (Аллоды) release
+title_variant = "Allods"
 collected_as = ["allods_176x220.jar"]
 containers = ["_originals/allods_176x220.jar"]
+notes = "RU region variant, mid resolution. Clean 'Allods' MIDlet (no repack tag)."
 
 [[payload]]
 id = "allods_240x320_240x320_04"
@@ -84,6 +110,9 @@ cldc = "CLDC-1.0"
 resolution = "240x320"
 declared_language = "unknown"   # HINT from filename/manifest; verify from content (R10)
 official = true   # TODO Phase 1: set false + move to [[archived]] if a fan repack
+region = "ru"                 # Russian "Allods" (Аллоды) release
+title_variant = "Allods"
 collected_as = ["allods_240x320.jar"]
 containers = ["_originals/allods_240x320.jar"]
+notes = "RU region variant, highest resolution — baseline candidate. Clean 'Allods' MIDlet."
 
