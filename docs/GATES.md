@@ -13,6 +13,10 @@ row when you add a gate.
 | Gate | Command | Can-fail proof |
 | --- | --- | --- |
 | Originals provenance | `just originals-verify` | `just originals-verify-canfail` (proven RED on a one-byte payload corruption) |
+| Formats corpus + oracles | `just formats-corpus` | in-test negative controls reject one-unit-perturbed blobs (a `.map` one byte short/long, a `.utf` record over-running EOF, a `.pak` length that breaks the total invariant, an odd-length `.int`, a `scenes` blob cut mid-scene) |
+| R8 numeric-shape authority | `just numeric-shape` | `just numeric-shape-canfail` (proven RED: flips one recorded opcode — idiv→fdiv — in memory and the byte-identical check names the drifted method) |
+| R10 symbols ledger | `just symbols` | `just symbols-canfail` (proven RED: injects a non-existent `(obf, descriptor)` member into a real class and the resolution check rejects it) |
+| Transliteration first frame | `just first-frame` | in-test controls fail the same `is_real_frame` predicate: a blank (all-white) framebuffer, a uniform non-white fill, and the t≈0 fade-cover frame from the SAME pipeline (state-sensitivity); the logo box is additionally pinned pixel-exact against the independent `rage_formats::pak` + PNG oracle; a missing `_originals` corpus panics loudly (rule 4), never skips |
 
 ## Rules (restated)
 

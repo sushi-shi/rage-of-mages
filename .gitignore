@@ -11,6 +11,7 @@ _originals
 # Generated catalogs, fingerprints, decompiles, captures (regenerable).
 _reference
 _temp
+tiles
 
 # Rust build output.
 /target

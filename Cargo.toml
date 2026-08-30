@@ -1,0 +1,53 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/rage-formats",
+    "transliteration/crates/rage-game-xlat",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "CC0-1.0"
+repository = "https://github.com/OWNER/rage-of-mages"
+
+# Foundational dependencies are pinned here so one version is chosen across the
+# whole workspace (rulebook R14). Add crates with `dep = { workspace = true }`.
+# Pins mirror the proven gothic-mobile 2D port (same nixpkgs/cargo).
+[workspace.dependencies]
+# Shared, game-neutral J2ME layers from the public preservation kit, all pinned
+# to one immutable reviewed commit. These replace the per-game gothic-derived
+# copies (rage-jvm/rage-canvas/rage-me): j2me-jvm (JVM arithmetic + exceptions +
+# clock), j2me-canvas (neutral ARGB Image + source-over), j2me-codec (bounded
+# reader), j2me-me (MIDP device runtime: Graphics/Canvas/Display/Image-decode),
+# j2me-nokia (com.nokia.mid.ui DirectGraphics blitter).
+j2me-jvm = { git = "https://github.com/sushi-shi/j2me-preservation-kit.git", rev = "7aeba277a270eb58658d211bd3621b30956f6212" }
+j2me-canvas = { git = "https://github.com/sushi-shi/j2me-preservation-kit.git", rev = "7aeba277a270eb58658d211bd3621b30956f6212" }
+j2me-codec = { git = "https://github.com/sushi-shi/j2me-preservation-kit.git", rev = "7aeba277a270eb58658d211bd3621b30956f6212" }
+j2me-me = { git = "https://github.com/sushi-shi/j2me-preservation-kit.git", rev = "7aeba277a270eb58658d211bd3621b30956f6212" }
+j2me-nokia = { git = "https://github.com/sushi-shi/j2me-preservation-kit.git", rev = "7aeba277a270eb58658d211bd3621b30956f6212" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+thiserror = "2"
+anyhow = "1"
+# Content-import layer (crates/rage-content, Phase 4a). `zip` reads a build's JAR
+# in-process (no shelling out); `png` decodes sprite PNGs to ARGB; `sha2`
+# content-addresses a build so its reconciled language is read from builds.toml
+# (identity is the payload hash, never the filename — rulebook R10). `deflate` is
+# the only zip codec the JARs use; the heavy default codecs are turned off.
+zip = { version = "2.4", default-features = false, features = ["deflate"] }
+png = "0.17"
+sha2 = "0.10"
+# Native host (apps/rage-linux). `winit` owns the OS window + keyboard event
+# loop; `softbuffer` blits our CPU ARGB framebuffer straight to the window (2D
+# only — no wgpu/shaders).
+winit = "0.30"
+softbuffer = "0.4"
+
+[profile.release]
+opt-level = 3
+
+# Debug assertions catch the wrapping/overflow divergences the transliteration
+# must reproduce faithfully (rulebook R8) — keep them on in dev.
+[profile.dev]
+overflow-checks = true

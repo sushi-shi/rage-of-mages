@@ -1,0 +1,633 @@
+# Reviewed naming authority for Rage of Mages / Allods (Nival, J2ME 2D).
+#
+# This file is the ONE tracked owner of obfuscated -> semantic identity for the
+# baseline's transliteration surface (rulebook R10: identity/naming is assigned
+# from SHAPE and behaviour, never inferred from the obfuscated single letter).
+# There is no separately buildable named-Java app; this ledger is what a
+# transliterator consults to know what an obfuscated `class.member` means.
+#
+# SCOPE: the baseline `allods_176x220` (behaviour authority; 37 obfuscated
+# classes launching `Container/GameMIDlet`). Obfuscated names are STABLE within a
+# build but recompiled per device, so a name assigned here holds for the baseline
+# and — because `Rage-of-Mages_EN_v11` shares the baseline's exact class-NAME set
+# (builds.toml Phase-1 reconciliation) — for that English fork too.
+#
+# KEYS: obfuscated names collide heavily — the obfuscator reuses `a` for dozens of
+# unrelated members, distinguished only by descriptor (baseline class `m` alone
+# has 231 fields / 162 methods). Every member is therefore keyed by its JVM-level
+# `(obf, descriptor)` pair, which is unique within a class and stable — NOT by a
+# decompiler's invented disambiguations (`m38a`, `f251o`).
+#
+# EVIDENCE: each name cites the class/method (and the doc that reversed it) that
+# supports it. `confidence` is high / medium / low. This ledger does NOT claim to
+# name all 37 classes or every member; it seeds the class roles and the members
+# established in Phase 1 (docs/FORMATS.md + docs/DEVICE_RUNTIME.md), and only
+# asserts names the bytecode + that evidence support. Uncertain members are left
+# out (R10) rather than named on a guess; overload disambiguations that are an
+# inference (not stated verbatim in the evidence) are flagged medium.
+#
+# INTEGRITY: `tools/java/validate_symbols.py` asserts every (obf, descriptor) here
+# is a REAL member of that class in the baseline bytecode (parsed straight from
+# the jar by tools/java/classfile.py — the bytecode is the authority, R2), so the
+# ledger cannot drift from reality; `--self-test` proves the gate can go red.
+#
+# The arithmetic each named method must reproduce is pinned separately, straight
+# from the bytecode, in `_reference/numeric-shapes.json` (rulebook R8; produced by
+# tools/java/validate_numeric_shape.py). Consult BOTH before porting a method.
+
+baseline = "allods_176x220_176x220_03"
+
+# ===========================================================================
+# Container/GameMIDlet — the MIDlet application entry (lifecycle only).
+# ===========================================================================
+[classes."Container/GameMIDlet"]
+obf = "Container/GameMIDlet"
+semantic = "GameMIDlet"
+role = "MIDlet application entry: constructs the canvas `m`, obtains the Display and shows it once, and owns startApp/pauseApp/destroyApp/quit."
+evidence = "extends javax.microedition.midlet.MIDlet; named as the MIDlet-1 launch class in the JAD manifest (builds.toml, FORMATS.md); DEVICE_RUNTIME.md §6."
+confidence = "high"
+
+[[classes."Container/GameMIDlet".field]]
+obf = "a"
+descriptor = "Ljavax/microedition/lcdui/Display;"
+semantic = "display"
+evidence = "DEVICE_RUNTIME.md §3.3: Display.getDisplay(this) is called once in the ctor; the sole setCurrent target is the canvas."
+confidence = "high"
+[[classes."Container/GameMIDlet".field]]
+obf = "a"
+descriptor = "Lm;"
+semantic = "canvas"
+evidence = "the `m` FullCanvas singleton constructed by the MIDlet and passed to Display.setCurrent (DEVICE_RUNTIME.md §3.3)."
+confidence = "high"
+
+[[classes."Container/GameMIDlet".method]]
+obf = "<init>"
+descriptor = "()V"
+semantic = "boot"
+evidence = "constructs `m`, Display.getDisplay(this), setCurrent(m) — one-time attach (R9; DEVICE_RUNTIME.md §3.3/§6)."
+confidence = "high"
+[[classes."Container/GameMIDlet".method]]
+obf = "startApp"
+descriptor = "()V"
+semantic = "startApp"
+evidence = "MIDlet.startApp lifecycle callback (DEVICE_RUNTIME.md §6)."
+confidence = "high"
+[[classes."Container/GameMIDlet".method]]
+obf = "pauseApp"
+descriptor = "()V"
+semantic = "pauseApp"
+evidence = "MIDlet.pauseApp — `final`, empty; the real app-switch pause is m.hideNotify (DEVICE_RUNTIME.md §6/§3.3)."
+confidence = "high"
+[[classes."Container/GameMIDlet".method]]
+obf = "destroyApp"
+descriptor = "(Z)V"
+semantic = "destroyApp"
+evidence = "MIDlet.destroyApp lifecycle callback (DEVICE_RUNTIME.md §6)."
+confidence = "high"
+[[classes."Container/GameMIDlet".method]]
+obf = "quit"
+descriptor = "()V"
+semantic = "quit"
+evidence = "calls MIDlet.notifyDestroyed(); the run loop exits on m.A and this tells the AMS it may reclaim (DEVICE_RUNTIME.md §6)."
+confidence = "high"
+
+# ===========================================================================
+# m — the canvas + world + game loop. `extends com.nokia.mid.ui.FullCanvas
+# implements Runnable, s`. Owns paint, input, the game clock, audio, RMS save,
+# map/scene loading — the bulk of the transliteration surface.
+# ===========================================================================
+[classes.m]
+obf = "m"
+semantic = "GameCanvas"
+role = "The Nokia FullCanvas + Runnable game loop: paint, event-driven input, the 62ms frame clock, MMAPI music, RMS save/load, and .map/scenes.pak loading. The world and the platform surface in one class."
+evidence = "extends com.nokia.mid.ui.FullCanvas implements Runnable (DEVICE_RUNTIME.md §2/§8); the map/scenes consumer (FORMATS.md); started as the single game thread by the MIDlet."
+confidence = "high"
+
+# --- fields: subsystem singletons + loop/audio state -----------------------
+[[classes.m.field]]
+obf = "a"
+descriptor = "Lo;"
+semantic = "trig"
+evidence = "the `o` sincos-table instance; source of sin/cos for isometric math (FORMATS.md sincos)."
+confidence = "high"
+[[classes.m.field]]
+obf = "a"
+descriptor = "Lj;"
+semantic = "resource_loader"
+evidence = "the `j` .pak/.mid resource loader (FORMATS.md res*.pak; DEVICE_RUNTIME.md §7)."
+confidence = "high"
+[[classes.m.field]]
+obf = "a"
+descriptor = "Lae;"
+semantic = "text_helper"
+evidence = "the `ae` text/.utf + bitmap-font helper (FORMATS.md .utf; DEVICE_RUNTIME.md §1.3)."
+confidence = "high"
+[[classes.m.field]]
+obf = "a"
+descriptor = "Laj;"
+semantic = "common_table"
+evidence = "the `aj` common.utf parser instance (FORMATS.md common.utf)."
+confidence = "high"
+[[classes.m.field]]
+obf = "a"
+descriptor = "Ljava/util/Random;"
+semantic = "rng"
+evidence = "java.util.Random seeded from currentTimeMillis in m.f(); the gameplay RNG (DEVICE_RUNTIME.md §7)."
+confidence = "high"
+[[classes.m.field]]
+obf = "a"
+descriptor = "[Ljavax/microedition/media/Player;"
+semantic = "music_players"
+evidence = "the two prefetched looping MIDI Players (bgsound.mid / bgsound1.mid) created in m.f() (DEVICE_RUNTIME.md §4)."
+confidence = "high"
+[[classes.m.field]]
+obf = "A"
+descriptor = "Z"
+semantic = "quit_flag"
+evidence = "private boolean; the run loop spins `while(!A)` and exits when set (DEVICE_RUNTIME.md §8)."
+confidence = "high"
+[[classes.m.field]]
+obf = "c"
+descriptor = "Z"
+semantic = "paused"
+evidence = "pause flag toggled by hideNotify(true)/showNotify(false); the loop skips update+repaint while set (DEVICE_RUNTIME.md §3.3/§8)."
+confidence = "high"
+[[classes.m.field]]
+obf = "ak"
+descriptor = "I"
+semantic = "active_music_track"
+evidence = "index (0/1) of the currently-started MIDI track, -1 = none; m.h(int) guards on `ak != i` (DEVICE_RUNTIME.md §4)."
+confidence = "high"
+[[classes.m.field]]
+obf = "al"
+descriptor = "I"
+semantic = "music_volume"
+evidence = "current VolumeControl level for the active track; restored by showNotify, muted by hideNotify (DEVICE_RUNTIME.md §4/§3.3)."
+confidence = "high"
+[[classes.m.field]]
+obf = "d"
+descriptor = "Z"
+semantic = "multiplayer"
+evidence = "the multiplayer flag: when set the map path is /res/net<i>.map and the per-level campaign placement is skipped (FORMATS.md .map). Inferred among several `d` fields, disambiguated by the Z descriptor."
+confidence = "medium"
+
+# --- methods: game loop / paint / input (R9 surface) -----------------------
+[[classes.m.method]]
+obf = "run"
+descriptor = "()V"
+semantic = "game_loop"
+evidence = "Runnable.run: publish back-refs, init, then `while(!A)` update -> repaint();serviceRepaints() -> sleep to a 62ms deadline (DEVICE_RUNTIME.md §8)."
+confidence = "high"
+[[classes.m.method]]
+obf = "paint"
+descriptor = "(Ljavax/microedition/lcdui/Graphics;)V"
+semantic = "paint"
+evidence = "full redraw each call: ae.a(g) bind -> base/map -> top of the screen stack, no retained-framebuffer reliance (DEVICE_RUNTIME.md §3.2)."
+confidence = "high"
+[[classes.m.method]]
+obf = "keyPressed"
+descriptor = "(I)V"
+semantic = "key_pressed"
+evidence = "overridden Canvas.keyPressed: any-key latch, softkey latches, then switch(getGameAction) setting held+latch booleans (DEVICE_RUNTIME.md §3.1)."
+confidence = "high"
+[[classes.m.method]]
+obf = "keyReleased"
+descriptor = "(I)V"
+semantic = "key_released"
+evidence = "overridden Canvas.keyReleased: clears only the held directional booleans; latches are edge-consumed by the loop (DEVICE_RUNTIME.md §3.1)."
+confidence = "high"
+[[classes.m.method]]
+obf = "showNotify"
+descriptor = "()V"
+semantic = "show_notify"
+evidence = "focus gained: unpause (c=false) and restore audio volume i(al) (DEVICE_RUNTIME.md §3.3)."
+confidence = "high"
+[[classes.m.method]]
+obf = "hideNotify"
+descriptor = "()V"
+semantic = "hide_notify"
+evidence = "focus lost: pause (c=true) and mute i(0); the real app-switch pause (DEVICE_RUNTIME.md §3.3)."
+confidence = "high"
+
+# --- methods: map + scene loading ------------------------------------------
+[[classes.m.method]]
+obf = "a"
+descriptor = "(II)V"
+semantic = "load_map"
+evidence = "FORMATS.md `.map`: m.a(int level, int flag) [jadx m38a] loads the terrain grid (LE u16 header) and dispatches per-campaign-level placement. The (II)V overload among m's three (II)* methods (the (II)Ln; and (II)[B siblings are entity/blob factories); disambiguation is inferred, role is established."
+confidence = "medium"
+[[classes.m.method]]
+obf = "g"
+descriptor = "(I)V"
+semantic = "load_scenes"
+evidence = "FORMATS.md scenes.pak: m.g(int level) reads the per-level 3-group nested-int-array scene tables via a big-endian DataInputStream."
+confidence = "high"
+
+# --- methods: MMAPI single-channel music (DEVICE_RUNTIME.md §4) -------------
+[[classes.m.method]]
+obf = "h"
+descriptor = "(I)V"
+semantic = "select_music_track"
+evidence = "m.h(int i): guarded by `if (ak != i)` — re-selecting the active track is a no-op; on a change stops the old track, sets ak=i, restores volume (DEVICE_RUNTIME.md §4)."
+confidence = "high"
+[[classes.m.method]]
+obf = "i"
+descriptor = "(I)V"
+semantic = "set_music_volume"
+evidence = "m.i(int level): level>0 -> start()+setLevel+unmute; level<=0 -> setLevel(0)+mute+stop(); wrapped in try/catch (DEVICE_RUNTIME.md §4)."
+confidence = "high"
+
+# --- methods: RMS save / load (DEVICE_RUNTIME.md §5) ------------------------
+[[classes.m.method]]
+obf = "N"
+descriptor = "()V"
+semantic = "save_game"
+evidence = "m.N() writes the 7-record slot store (m34a/m35b/m36c/m37d + fog + summary + f250n) via the offset-binary LE helpers (DEVICE_RUNTIME.md §5.2)."
+confidence = "high"
+[[classes.m.method]]
+obf = "O"
+descriptor = "()V"
+semantic = "load_game"
+evidence = "m.O() reads the slot store back in the exact field order N() wrote (DEVICE_RUNTIME.md §5.2)."
+confidence = "high"
+[[classes.m.method]]
+obf = "b"
+descriptor = "(I[BI)V"
+semantic = "write_int_offset_le"
+evidence = "save-wire int writer: v2 = v - Integer.MIN_VALUE, then 4 bytes little-endian into a[off..] (DEVICE_RUNTIME.md §5.1)."
+confidence = "high"
+[[classes.m.method]]
+obf = "c"
+descriptor = "([BI)I"
+semantic = "read_int_offset_le"
+evidence = "save-wire int reader: 4 bytes LE, unsigned-accumulated, then - Integer.MIN_VALUE (DEVICE_RUNTIME.md §5.1)."
+confidence = "high"
+[[classes.m.method]]
+obf = "a"
+descriptor = "(J[BI)V"
+semantic = "write_long_offset_le"
+evidence = "save-wire long writer: v2 = v - Long.MIN_VALUE, then 8 bytes little-endian (DEVICE_RUNTIME.md §5.1)."
+confidence = "high"
+[[classes.m.method]]
+obf = "a"
+descriptor = "([BI)J"
+semantic = "read_long_offset_le"
+evidence = "save-wire long reader [jadx m33a]: 8 bytes LE, then - Long.MIN_VALUE (DEVICE_RUNTIME.md §5.1)."
+confidence = "high"
+
+# ===========================================================================
+# o — the fixed-point sine/cosine tables (FORMATS.md sincos).
+# ===========================================================================
+[classes.o]
+obf = "o"
+semantic = "TrigTables"
+role = "Fixed-point sin/cos lookup: loads sincos/sin.int + cos.int (90 x i16 BE, scale 10000) and folds the quarter table to a full circle."
+evidence = "FORMATS.md sincos: ctor reads both .int resources into short[90]; a(short)/b(short) do the quadrant folding; a() returns the 10000 scale."
+confidence = "high"
+
+[[classes.o.field]]
+obf = "a"
+descriptor = "[S"
+semantic = "sin_table"
+evidence = "short[90] filled from /sincos/sin.int via readShort; sin[0]=0, sin[45]=7071, sin[89]=9998 (FORMATS.md)."
+confidence = "high"
+[[classes.o.field]]
+obf = "b"
+descriptor = "[S"
+semantic = "cos_table"
+evidence = "short[90] filled from /sincos/cos.int; cos[0]=10000, cos[45]=7071, cos[89]=175 (FORMATS.md)."
+confidence = "high"
+
+[[classes.o.method]]
+obf = "<init>"
+descriptor = "()V"
+semantic = "load_tables"
+evidence = "reads /sincos/sin.int and /sincos/cos.int (big-endian i16) into sin_table/cos_table (FORMATS.md)."
+confidence = "high"
+[[classes.o.method]]
+obf = "a"
+descriptor = "(S)I"
+semantic = "sin"
+evidence = "o.a(short deg): normalises deg into [0,360) and mirrors the quarter table with the correct sign (FORMATS.md)."
+confidence = "high"
+[[classes.o.method]]
+obf = "b"
+descriptor = "(S)I"
+semantic = "cos"
+evidence = "o.b(short deg): the cosine quadrant fold, parallel to sin (FORMATS.md)."
+confidence = "high"
+[[classes.o.method]]
+obf = "a"
+descriptor = "()S"
+semantic = "scale"
+evidence = "FORMATS.md: `o.a()` returns the constant 10000 (the fixed-point scale). The no-arg `a` overload; disambiguated by return type from the sine a(short)."
+confidence = "medium"
+
+# ===========================================================================
+# ae — text/.utf reader + bitmap-font renderer + static current-Graphics cache.
+# ===========================================================================
+[classes.ae]
+obf = "ae"
+semantic = "TextEngine"
+role = ".utf record reader, bitmap-font descriptor decoder + glyph renderer, and the static cache of the current paint Graphics."
+evidence = "FORMATS.md .utf + font descriptor; DEVICE_RUNTIME.md §1.3/§3.2 (ae.a(g) binds the current Graphics statically; the game measures text from the descriptor, never Font)."
+confidence = "high"
+
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/io/InputStream;)Ljava/io/DataInputStream;"
+semantic = "open_stream"
+evidence = "FORMATS.md: ae.a(InputStream) wraps a resource stream in a DataInputStream for readUTF."
+confidence = "high"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/io/DataInputStream;)Ljava/lang/String;"
+semantic = "read_utf_record"
+evidence = "FORMATS.md [jadx m3a]: reads one u16-length modified-UTF-8 record from the flat .utf stream."
+confidence = "high"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/io/DataInputStream;I)Ljava/lang/String;"
+semantic = "read_utf_section"
+evidence = "FORMATS.md: static ae.a(DataInputStream, t) skips t empty-delimited sections and reads one (messages.utf, case 7)."
+confidence = "high"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/io/DataInputStream;I)[Ljava/lang/String;"
+semantic = "read_dialog_block"
+evidence = "FORMATS.md [jadx m4a]: reads one double-empty-delimited dialogue block (dialogs<n>.utf, case 6) as an array of records."
+confidence = "medium"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/io/DataInputStream;)V"
+semantic = "read_font_descriptor"
+evidence = "FORMATS.md font descriptor: parses the res0.pak entry-2 blob as five readUTF records (glyph string, cell w, cell h, atlas columns, per-glyph advances). The void a(DataInputStream) overload, distinct from the record reader."
+confidence = "high"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljavax/microedition/lcdui/Graphics;)V"
+semantic = "bind_graphics"
+evidence = "DEVICE_RUNTIME.md §3.2: static ae.a(g) called first in m.paint to cache the current Graphics for the text/render helpers."
+confidence = "high"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(Ljava/lang/String;)I"
+semantic = "string_width"
+evidence = "measures a string's pixel width by summing per-glyph advances from the bitmap-font descriptor (DEVICE_RUNTIME.md §1.3 — the game never uses Font metrics)."
+confidence = "medium"
+[[classes.ae.method]]
+obf = "a"
+descriptor = "(C)I"
+semantic = "char_width"
+evidence = "the per-glyph advance lookup behind string_width (DEVICE_RUNTIME.md §1.3)."
+confidence = "medium"
+
+# ===========================================================================
+# j — the resource loader: .pak XOR container walk + raw .mid slurp.
+# ===========================================================================
+[classes.j]
+obf = "j"
+semantic = "ResourceLoader"
+role = "Reads the res*.pak XOR-packed directories (sequential-index entries, XOR key 0x53) and slurps raw .mid files; getResourceAsStream fronts both."
+evidence = "FORMATS.md res*.pak (j.a(String,byte,Class) opens; j.a() reads/decrypts current entry; j.a(int) skips; j.a() closes) and .mid (static j.a(String,Class) slurp, no XOR)."
+confidence = "high"
+
+[[classes.j.method]]
+obf = "a"
+descriptor = "(Ljava/lang/String;BLjava/lang/Class;)V"
+semantic = "open_pak"
+evidence = "FORMATS.md: j.a(String name, byte key, Class) opens a pak and reads its i32-count + i32 length[] directory; callers pass key (byte)0x53='S'."
+confidence = "high"
+[[classes.j.method]]
+obf = "a"
+descriptor = "()[B"
+semantic = "read_entry"
+evidence = "FORMATS.md [jadx m14a]: returns the current directory entry's bytes, each XOR 0x53 -> a complete PNG."
+confidence = "high"
+[[classes.j.method]]
+obf = "a"
+descriptor = "(I)V"
+semantic = "skip_entries"
+evidence = "FORMATS.md: j.a(int n) skipBytes past n entries to reach entry N (cumulative directory walk)."
+confidence = "high"
+[[classes.j.method]]
+obf = "a"
+descriptor = "()V"
+semantic = "close_pak"
+evidence = "FORMATS.md: the no-arg void j.a() closes the pak stream."
+confidence = "high"
+[[classes.j.method]]
+obf = "a"
+descriptor = "(Ljava/lang/String;Ljava/lang/Class;)[B"
+semantic = "slurp_resource"
+evidence = "FORMATS.md .mid: static j.a(String, Class) reads a byte-count then readFully — a raw slurp with NO XOR (used for the MIDI files)."
+confidence = "high"
+
+# ===========================================================================
+# g — a screen/overlay object (pushed on m's screen stack) + text dispatch.
+# ===========================================================================
+[classes.g]
+obf = "g"
+semantic = "Screen"
+role = "A screen/overlay pushed on m's screen stack; g.a(int) dispatches the per-screen text/resource loads (credits, help, messages, dialogue, sprite packs), and g paints the credits scroll."
+evidence = "DEVICE_RUNTIME.md class map (screen objects on stack m.f193a; the 7 drawString credits calls live here); FORMATS.md g.a(int) case dispatch for .utf/.pak."
+confidence = "high"
+
+[[classes.g.method]]
+obf = "<init>"
+descriptor = "(Lm;I)V"
+semantic = "new_screen"
+evidence = "g(m owner, int kind): builds a screen bound to the canvas with a screen-kind selector."
+confidence = "medium"
+[[classes.g.method]]
+obf = "a"
+descriptor = "(I)V"
+semantic = "load_screen_text"
+evidence = "FORMATS.md: g.a(int t) is the screen/text dispatcher — cases 3/4 credits (1.utf/2.utf), 6 dialogue, 7 messages, 8 res1..4.pak."
+confidence = "high"
+[[classes.g.method]]
+obf = "a"
+descriptor = "(Ljavax/microedition/lcdui/Graphics;)V"
+semantic = "paint_screen"
+evidence = "the screen's paint entry; the credits variant issues the 7 Graphics.drawString calls (DEVICE_RUNTIME.md §1.1)."
+confidence = "medium"
+
+# ===========================================================================
+# aj — the common.utf table parser (28 count-prefixed string groups).
+# ===========================================================================
+[classes.aj]
+obf = "aj"
+semantic = "CommonTable"
+role = "Parses common.utf into 28 count-prefixed string groups (fields a..B), skipping // comment records."
+evidence = "FORMATS.md common.utf: the aj constructor reads 28 groups aj.a..aj.B, each a decimal-count record followed by that many strings; aj.a() skips comment records."
+confidence = "high"
+
+[[classes.aj.field]]
+obf = "a"
+descriptor = "Lm;"
+semantic = "canvas"
+evidence = "back-reference to the owning `m` passed to the aj(m) constructor."
+confidence = "high"
+[[classes.aj.field]]
+obf = "a"
+descriptor = "Ljava/io/DataInputStream;"
+semantic = "stream"
+evidence = "the common.utf DataInputStream the parser reads records from."
+confidence = "high"
+[[classes.aj.field]]
+obf = "a"
+descriptor = "[Ljava/lang/String;"
+semantic = "group_a"
+evidence = "FORMATS.md: the first of the 28 count-prefixed string groups (aj.a..aj.B), each holding one parsed group of common.utf. Named as the group-a slot; the remaining 27 are the b..B fields."
+confidence = "medium"
+
+[[classes.aj.method]]
+obf = "<init>"
+descriptor = "(Lm;)V"
+semantic = "parse_common_utf"
+evidence = "FORMATS.md: aj(m) opens common.utf and fills the 28 groups (count-prefixed, comment-skipping)."
+confidence = "high"
+[[classes.aj.method]]
+obf = "a"
+descriptor = "([Ljava/lang/String;)V"
+semantic = "read_group"
+evidence = "FORMATS.md: reads one group — a decimal count record then that many string records — into the passed String[]."
+confidence = "medium"
+[[classes.aj.method]]
+obf = "a"
+descriptor = "()Ljava/lang/String;"
+semantic = "next_record"
+evidence = "FORMATS.md: aj.a() reads the next record, skipping any beginning with // (the comment-skip loop)."
+confidence = "high"
+
+# ===========================================================================
+# q — the ability system: the abilities.txt stat table + per-entity ability.
+# ===========================================================================
+[classes.q]
+obf = "q"
+semantic = "Ability"
+role = "A creature ability bound to an entity `n`, backed by the static abilities.txt stat table (57 columns/row)."
+evidence = "FORMATS.md abilities.txt: rows loaded via q.a(int) (ncols=57) into the static int[][] table; DEVICE_RUNTIME.md §8: static back-ref q.a=this published in run()."
+confidence = "high"
+
+[[classes.q.field]]
+obf = "h"
+descriptor = "[[I"
+semantic = "abilities_table"
+evidence = "FORMATS.md: the static int[][] holding parsed abilities.txt rows (per-creature stat vectors, 57 columns)."
+confidence = "high"
+[[classes.q.field]]
+obf = "a"
+descriptor = "Lm;"
+semantic = "canvas"
+evidence = "DEVICE_RUNTIME.md §8: the static `m` back-reference published as q.a=this in the game loop."
+confidence = "high"
+[[classes.q.field]]
+obf = "a"
+descriptor = "Ln;"
+semantic = "owner"
+evidence = "the entity `n` this ability instance belongs to (set from the q(n) constructor)."
+confidence = "medium"
+[[classes.q.field]]
+obf = "i"
+descriptor = "[I"
+semantic = "ability_row"
+evidence = "the per-instance ability stat row (a row of abilities_table for this ability). Inferred from the [I shape and the q.a(int) loader."
+confidence = "medium"
+
+[[classes.q.method]]
+obf = "<init>"
+descriptor = "(Ln;)V"
+semantic = "new_ability"
+evidence = "q(n owner): constructs an ability bound to an entity."
+confidence = "medium"
+[[classes.q.method]]
+obf = "a"
+descriptor = "(I)[I"
+semantic = "load_ability_row"
+evidence = "FORMATS.md: q.a(int) drives the abilities.txt row load (m.a(int[][],row,name,57)) and returns the int[] stat row. The (I)[I overload; the (I)Lq; sibling is an instance lookup."
+confidence = "medium"
+
+# ===========================================================================
+# n — a game entity/unit (position, stats, ability, AI), serialized in saves.
+# ===========================================================================
+[classes.n]
+obf = "n"
+semantic = "Entity"
+role = "A world entity/unit: position + a stat vector `ab` + an ability `q`; spawned from scenes.pak group-3 records and serialized into save records 3/4."
+evidence = "FORMATS.md scenes.pak: group-3 rows feed `new n(...)` (x,y,w,h,flags,… 9-10 ints); DEVICE_RUNTIME.md §5.2: n.a(byte[],off) packs an entity into the save wire; static back-ref n.a=this (§8)."
+confidence = "high"
+
+[[classes.n.field]]
+obf = "a"
+descriptor = "Lm;"
+semantic = "canvas"
+evidence = "DEVICE_RUNTIME.md §8: the static `m` back-reference published as n.a=this in the game loop."
+confidence = "high"
+[[classes.n.field]]
+obf = "a"
+descriptor = "Lq;"
+semantic = "ability"
+evidence = "the entity's `q` ability instance (constructed with this entity as owner)."
+confidence = "medium"
+[[classes.n.field]]
+obf = "a"
+descriptor = "Lab;"
+semantic = "stats"
+evidence = "the entity's `ab` stat/inventory vector (the per-unit record serialized in save rec 1)."
+confidence = "medium"
+
+[[classes.n.method]]
+obf = "<init>"
+descriptor = "(IIIIBZIII)V"
+semantic = "new_entity"
+evidence = "FORMATS.md scenes.pak: the public 9-arg n(...) constructor matching the group-3 spawn record (x,y,w,h,flags,…)."
+confidence = "high"
+[[classes.n.method]]
+obf = "a"
+descriptor = "([BI)V"
+semantic = "write_save"
+evidence = "DEVICE_RUNTIME.md §5.2: n.a(byte[],off) packs one entity into a save record (recs 3/4). Internal field order not yet decoded (doc's 'uncertain' list) — the framing role is established."
+confidence = "medium"
+
+# ===========================================================================
+# ab — a compact serializable per-unit stat/inventory record.
+# ===========================================================================
+[classes.ab]
+obf = "ab"
+semantic = "StatRecord"
+role = "A fixed-width per-unit stat/inventory vector (raw byte[] payload) packed into save record 1; also draws its own portrait/stat row."
+evidence = "DEVICE_RUNTIME.md §5.2: save rec 1 packs each unit as an ab record via ab.a(byte[],off,m), ab.c() bytes wide; §10 flags the exact byte width/field order as to-pin-later, so only the framing is asserted here."
+confidence = "medium"
+
+[[classes.ab.field]]
+obf = "a"
+descriptor = "[B"
+semantic = "stat_bytes"
+evidence = "the raw byte[] payload of the stat/inventory record (ab.c() bytes) packed/unpacked by ab.a/ab.b (DEVICE_RUNTIME.md §5.2)."
+confidence = "medium"
+
+[[classes.ab.method]]
+obf = "c"
+descriptor = "()I"
+semantic = "record_size"
+evidence = "DEVICE_RUNTIME.md §5.2: static ab.c() returns the fixed serialized byte width of one stat record."
+confidence = "high"
+[[classes.ab.method]]
+obf = "a"
+descriptor = "([BILm;)V"
+semantic = "write_save"
+evidence = "DEVICE_RUNTIME.md §5.2: ab.a(byte[],off,m) packs this stat record into the save buffer at off."
+confidence = "high"
+[[classes.ab.method]]
+obf = "b"
+descriptor = "([BILm;)V"
+semantic = "read_save"
+evidence = "DEVICE_RUNTIME.md §5.2: the mirror reader ab.b(byte[],off,m) unpacks a stat record (field order to-pin-later, §10)."
+confidence = "medium"
+[[classes.ab.method]]
+obf = "a"
+descriptor = "(Ljavax/microedition/lcdui/Graphics;IILm;)V"
+semantic = "paint"
+evidence = "ab.a(Graphics,x,y,m) draws the unit's portrait/stat row on the HUD (the Graphics-typed overload, distinct from the save writer)."
+confidence = "medium"

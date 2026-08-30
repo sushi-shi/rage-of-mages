@@ -1,0 +1,33 @@
+[package]
+name = "rage-game-xlat"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# The STRICT TRANSLITERATION of the recovered Java (implementation #1):
+# provably the same program, NOT idiomatic Rust — do not refactor
+# (docs/TRANSLITERATION.md, ARITHMETIC_AND_RUNTIME.md Part A). Java statics live
+# on one `Game` struct (R4); ported methods are free functions with faithful
+# j2me-jvm arithmetic (R8); resource bytes come through the game's own
+# `crate::resource::Resources` seam (Class.getResourceAsStream) and are decoded
+# by the game's OWN loaders reversed from the bytecode.
+
+[dependencies]
+# The shared J2ME layers (git-pinned via the workspace):
+# j2me-jvm = faithful arithmetic + JavaError + Clock; j2me-me = the MIDP device
+# runtime (Graphics/Canvas/Display + Image-decode via `image`); j2me-nokia = the
+# Nokia DirectGraphics sprite blitter (drawPixels/getPixels). The neutral ARGB
+# `Image`/`source_over` reach this crate re-exported through j2me-me, and the
+# `getResourceAsStream` byte seam is GAME logic kept in `crate::resource`.
+j2me-jvm = { workspace = true }
+j2me-me = { workspace = true }
+j2me-nokia = { workspace = true }
+
+[dev-dependencies]
+# Independent oracle ONLY (R3 two-implementation rule): tests cross-check the
+# transliteration's own loaders against the bounded rage-formats parsers. The
+# transliteration itself must never decode resources through rage-formats.
+rage-formats = { path = "../../../crates/rage-formats" }
+# The first-frame gate reads the baseline jar (`_originals/allods_176x220.jar`)
+# in-process to back the `Resources` provider.
+zip = { workspace = true }

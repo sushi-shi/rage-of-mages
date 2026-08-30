@@ -1,0 +1,26 @@
+[package]
+name = "rage-formats"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+# Bounded parsers for the original Rage of Mages J2ME binary resources (.map,
+# .utf, .pak, sincos/*.int). Every parser MUST reject malformed/truncated
+# input without panicking (rulebook: parsers reject bad input) and be tested
+# against every applicable unique corpus blob.
+
+[dependencies]
+thiserror = { workspace = true }
+# The bounded, no_std primitive reader is the shared `j2me-codec::Reader`
+# (git-pinned via the workspace). This crate's `Reader`
+# wraps it to keep the game-specific `FormatError` surface (the domain
+# `Invalid` variant these parsers raise) while the byte-level bounds checking
+# lives in the shared layer.
+j2me-codec = { workspace = true }
+
+[dev-dependencies]
+# Corpus/oracle gate only (tests/corpus_oracle.rs): `zip` reads the real blobs
+# from the jars in `_originals/` in-process; `png` is the genuinely independent
+# second implementation that validates the decrypted .pak entries.
+zip = { workspace = true }
+png = { workspace = true }
